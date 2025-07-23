@@ -34,12 +34,12 @@ jobs:
           CRYMAP_VERSION: ${{ steps.crymap.outputs.release }}
         run: |
           export DATE="$(date +'%Y%m%d')"
-          export VERSION="$(echo "${CRYMAP_VERSION}" | grep -Eo '\d+\.\d+.\d+')"
+          export VERSION="$(echo "${CRYMAP_VERSION:?failed to get latest crymap version}" | grep -Eo '\d+\.\d+\.\d+')"
 
           echo "Building '${CRYMAP_VERSION}' as:"
 
-          echo "date=${DATE}" | tee -a $GITHUB_OUTPUT
-          echo "version=${VERSION}" | tee -a $GITHUB_OUTPUT
+          echo "date=${DATE:?failed to get current date}" | tee -a $GITHUB_OUTPUT
+          echo "version=${VERSION:?failed to parse crymap version}" | tee -a $GITHUB_OUTPUT
           echo "release=${VERSION}-${DATE}" | tee -a $GITHUB_OUTPUT
 
       - name: Install cosign
