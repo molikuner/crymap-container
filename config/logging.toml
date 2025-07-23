@@ -1,0 +1,8 @@
+[root]
+level = "info"
+appenders = ["stdout"]
+
+[appenders.stdout]
+kind = "file"
+# this is the STDOUT handle of the inetd command
+path = "/proc/1/fd/1"
