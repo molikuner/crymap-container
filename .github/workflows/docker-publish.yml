@@ -34,10 +34,13 @@ jobs:
           CRYMAP_VERSION: ${{ steps.crymap.outputs.release }}
         run: |
           export DATE="$(date +'%Y%m%d')"
-          export VERSION="$(echo "$CRYMAP_VERSION" | grep -Eo '\d+\.\d+.\d+')"
-          echo "::set-output name=date::${DATE}"
-          echo "::set-output name=version::${VERSION}"
-          echo "::set-output name=release::${VERSION}-${DATE}"
+          export VERSION="$(echo "${CRYMAP_VERSION}" | grep -Eo '\d+\.\d+.\d+')"
+
+          echo "Building '${CRYMAP_VERSION}' as:"
+
+          echo "date=${DATE}" | tee -a $GITHUB_OUTPUT
+          echo "version=${VERSION}" | tee -a $GITHUB_OUTPUT
+          echo "release=${VERSION}-${DATE}" | tee -a $GITHUB_OUTPUT
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
