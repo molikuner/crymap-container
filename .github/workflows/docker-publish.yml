@@ -1,4 +1,4 @@
-name: Publish Docker
+name: Docker Build-Push
 
 on:
   schedule:
@@ -28,9 +28,16 @@ jobs:
           repository: AltSysrq/crymap
           excludes: prerelease, draft
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+      - name: Get current date and release version
+        id: release-info
+        env:
+          CRYMAP_VERSION: ${{ steps.crymap.outputs.release }}
+        run: |
+          DATE="$(date +'%Y%m%d')"
+          VERSION="$(echo "$CRYMAP_VERSION" | grep -Eo '\d+\.\d+.\d+')"
+          echo "::set-output name=date::${DATE}"
+          echo "::set-output name=version::${VERSION}"
+          echo "::set-output name=release::${VERSION}-${DATE}"
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
@@ -57,9 +64,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ steps.crymap.outputs.release }}-${{ steps.date.outputs.date }}
+            ghcr.io/${{ github.repository }}:${{ steps.release-info.outputs.release }}
           platforms: linux/amd64,linux/arm64
-          build-args: CRYMAP_VERSION=${{ steps.crymap.outputs.release }}
+          build-args: CRYMAP_VERSION=${{ steps.release-info.outputs.version }}
 
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
@@ -74,5 +81,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          title: ${{ steps.crymap.outputs.release }}-${{ steps.date.outputs.date }}
-          tag: ${{ steps.crymap.outputs.release }}-${{ steps.date.outputs.date }}
+          title: ${{ steps.release-info.outputs.release }}
+          tag: ${{ steps.release-info.outputs.release }}
