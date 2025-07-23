@@ -34,7 +34,7 @@ jobs:
           CRYMAP_VERSION: ${{ steps.crymap.outputs.release }}
         run: |
           export DATE="$(date +'%Y%m%d')"
-          export VERSION="$(echo "${CRYMAP_VERSION:?failed to get latest crymap version}" | grep -Eo '\d+\.\d+\.\d+')"
+          export VERSION="$(echo "${CRYMAP_VERSION:?failed to get latest crymap version}")"
 
           echo "Building '${CRYMAP_VERSION}' as:"
 
