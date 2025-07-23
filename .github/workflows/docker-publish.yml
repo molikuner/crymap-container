@@ -33,8 +33,8 @@ jobs:
         env:
           CRYMAP_VERSION: ${{ steps.crymap.outputs.release }}
         run: |
-          DATE="$(date +'%Y%m%d')"
-          VERSION="$(echo "$CRYMAP_VERSION" | grep -Eo '\d+\.\d+.\d+')"
+          export DATE="$(date +'%Y%m%d')"
+          export VERSION="$(echo "$CRYMAP_VERSION" | grep -Eo '\d+\.\d+.\d+')"
           echo "::set-output name=date::${DATE}"
           echo "::set-output name=version::${VERSION}"
           echo "::set-output name=release::${VERSION}-${DATE}"
