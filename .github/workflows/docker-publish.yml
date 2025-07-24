@@ -167,7 +167,7 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "${REGISTRY_IMAGE}@sha256:%s " *) 2>&1 | tee >(grep -F 'sha256:' | grep -F ':sha-' | sed -E 's/.*(sha256:[a-z0-9]+).*/meta-digest=\1/' >> $GITHUB_OUTPUT)
+            $(printf "${REGISTRY_IMAGE}@sha256:%s " *) 2>&1 | tee >(grep -F 'sha256:' | grep -F ':sha-' | sed -E 's/.*sha256:([a-z0-9]+).*/meta-digest=\1/' >> $GITHUB_OUTPUT)
 
       - name: Sign the published Docker images
         env:
