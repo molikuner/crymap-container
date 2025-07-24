@@ -187,6 +187,7 @@ jobs:
     permissions:
       contents: write # write to release
 
+    runs-on: ubuntu-latest
     needs:
       - prepare
       - merge
