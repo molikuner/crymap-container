@@ -47,7 +47,7 @@ jobs:
           echo "PLATFORM_PAIR=${PLATFORM//\//-}" | tee -a $GITHUB_ENV
 
   build:
-    name: build container image for ${{ matrix.platform }}
+    name: build ${{ matrix.platform }} container image
 
     strategy:
       fail-fast: false
@@ -91,7 +91,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push=${{ github.event_name != 'pull_request' }} by digest
+      - name: Build and push by digest
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
@@ -168,18 +168,16 @@ jobs:
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf "${REGISTRY_IMAGE}@sha256:%s " *)
-          export META_DIGEST="$(docker buildx imagetools inspect "$(jq -cr '.tags[] | select(contains(":sha-"))')" --raw | sha256sum | cut -f 1 -d ' ')"
+          export META_DIGEST="$(docker buildx imagetools inspect "$(jq -cr '.tags[] | select(contains(":sha-"))')" | grep Digest | sed -E 's/Digest: +//')"
           echo "meta-digest=${META_DIGEST}" | tee -a $GITHUB_OUTPUT
 
       - name: Sign the published Docker images
-        working-directory: ${{ runner.temp }}/digests
         env:
+          DIGEST_DIR: ${{ runner.temp }}/digests
           TAGS: ${{ steps.meta.outputs.tags }}
           META_DIGEST: ${{ steps.meta-push.outputs.meta-digest }}
         run: |
-          for digest in *; do
-            codesign --yes ${REGISTRY_IMAGE}@sha256:${digest}
-          done
+          ls -1 "${DIGEST_DIR}" | xargs -I {} cosign sign --yes ${REGISTRY_IMAGE}@sha256:{}
           echo "${TAGS}" | xargs -I {} cosign sign --yes {}@$sha256:{META_DIGEST}
 
       - name: Inspect images
