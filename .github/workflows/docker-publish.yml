@@ -167,9 +167,7 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "${REGISTRY_IMAGE}@sha256:%s " *)
-          export META_DIGEST="$(docker buildx imagetools inspect "$(jq -cr '.tags[] | select(contains(":sha-"))')" | grep Digest | sed -E 's/Digest: +//')"
-          echo "meta-digest=${META_DIGEST}" | tee -a $GITHUB_OUTPUT
+            $(printf "${REGISTRY_IMAGE}@sha256:%s " *) | tee >(grep -F 'sha256:' | grep -F ':sha-' | sed -E 's/.*(sha256:[a-z0-9]+).*/meta-digest=\1/' >> $GITHUB_OUTPUT)
 
       - name: Sign the published Docker images
         env:
@@ -178,7 +176,7 @@ jobs:
           META_DIGEST: ${{ steps.meta-push.outputs.meta-digest }}
         run: |
           ls -1 "${DIGEST_DIR}" | xargs -I {} cosign sign --yes ${REGISTRY_IMAGE}@sha256:{}
-          echo "${TAGS}" | xargs -I {} cosign sign --yes {}@$sha256:{META_DIGEST}
+          echo "${TAGS}" | xargs -I {} cosign sign --yes {}@$sha256:${META_DIGEST}
 
       - name: Inspect images
         env:
