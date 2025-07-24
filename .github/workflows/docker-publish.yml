@@ -102,9 +102,10 @@ jobs:
           annotations: ${{ steps.meta.outputs.annotations }}
           outputs: type=image,push-by-digest=true,name-canonical=true,push=true,oci-mediatypes=true
 
+      # workaround because multiple outputs from jobs aren't supported
       - name: Export digest
         env:
-          DIGEST: ${{ steps.build.outputs.digest }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
           TEMP_DIR: ${{ runner.temp }}
         run: |
           mkdir -p "${TEMP_DIR}/digests"
