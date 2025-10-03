@@ -158,9 +158,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY_IMAGE }}
           tags: |
-            type=raw,value=latest,enable=${{ github.event_name != 'pull_request' }}
-            type=raw,value=${{ needs.prepare.outputs.version }},enable=${{ github.event_name != 'pull_request' }}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ needs.prepare.outputs.version }},enable={{is_default_branch}}
             type=raw,value=${{ needs.prepare.outputs.release }},enable=${{ github.event_name != 'pull_request' }}
+            type-raw,value=pr-${{ github.event.number }},enable=${{ github.event_name == 'pull_request' }}
             type=sha,format=long
 
       - name: Create manifest list and push
