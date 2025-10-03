@@ -17,7 +17,7 @@ docker run \ # or `podman` or what ever other container runtime you like
   -v /path/to/user/data:/etc/crymap/users \ # mount the user data
   -v /path/to/crymap.toml:/etc/crymap/crymap.toml \ # mount your config
   -v /path/to/privkey.pem:/config/path/to/privkey.pem \ # mount pivkey (make sure to adjust path as in your config)
-  -v /path/to/fullchain.pem:/config/path/to/fullchain.pem \ # mount fullchein (make sure to adjust path as in your config)
+  -v /path/to/fullchain.pem:/config/path/to/fullchain.pem \ # mount fullchain (make sure to adjust path as in your config)
   ghcr.io/molikuner/crymap-container:latest
 ```
 
@@ -27,8 +27,10 @@ The container is configured by default to log to stdout. If that needs to be adj
 
 ### IPv6
 
-By default the container only binds IPv4 ports. If host networking is used or the container runtime supports IPv6, simply use the `/etc/inetd46.conf` to bind to IPv4 and IPv6 addresses.
+By default the container only binds IPv4 ports. If host networking is used or the container runtime supports IPv6, simply use the `/etc/inetd6.conf` to bind to IPv4 and IPv6 addresses.
+
+Since the entrypoint of the container is `inetd` already, it's sufficient to specify the new config as command:
 
 ```shell
-docker run <...> ghcr.io/molikuner/crymap-container:latest /etc/inetd46.conf
+docker run <...> ghcr.io/molikuner/crymap-container:latest /etc/inetd6.conf
 ```
